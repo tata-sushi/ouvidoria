@@ -78,6 +78,7 @@ html, body {
   background:var(--carbon);
   color:var(--white);
 }
+.slide-cover.is-dark { background:#000; }
 .cover-logo {
   width:22%;
   max-width:180px;
@@ -498,6 +499,16 @@ body.is-drawing .draw-toolbar {
       <div class="slide-num">08</div>
     </section>
 
+    <!-- Slide 9 — Encerramento -->
+    <section class="slide slide-cover is-dark" aria-label="Slide 9 · Encerramento">
+      <div class="slide-inner">
+        <img alt="TATÁ SUSHI" class="cover-logo" id="closingLogo">
+        <h1 class="cover-title">Obrigado</h1>
+      </div>
+      <div class="cover-foot">TATÁ SUSHI · Ouvidoria</div>
+      <div class="slide-num">09</div>
+    </section>
+
     <canvas class="draw-canvas" id="drawCanvas"></canvas>
   </div>
 </main>
@@ -586,6 +597,10 @@ body.is-drawing .draw-toolbar {
 
 <script>
 (function () {
+  var coverLogo = document.querySelector('.slide-cover:not(.is-dark) .cover-logo');
+  var closingLogo = document.getElementById('closingLogo');
+  if (coverLogo && closingLogo) closingLogo.src = coverLogo.src;
+
   var slides = Array.prototype.slice.call(document.querySelectorAll('.stage .slide'));
   var prevBtn = document.getElementById('prev');
   var nextBtn = document.getElementById('next');
