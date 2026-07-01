@@ -198,6 +198,36 @@ html, body {
   text-align:center;
 }
 .nav-count .current { color:var(--citric); }
+.nav-sep { width:1px; height:20px; background:rgba(255,255,255,.15); margin:0 2px; }
+
+/* ── Modo tela cheia ────────────────────────── */
+:fullscreen body,
+:-webkit-full-screen body { background:#000; }
+:fullscreen .deck,
+:-webkit-full-screen .deck { padding:0; min-height:100vh; }
+:fullscreen .stage,
+:-webkit-full-screen .stage {
+  width: min(100vw, calc(100vh * 16 / 9));
+  height: min(100vh, calc(100vw * 9 / 16));
+  max-width:none;
+}
+:fullscreen .slide,
+:-webkit-full-screen .slide { border-radius:0; box-shadow:none; }
+
+/* Auto-hide da barra de navegação em fullscreen */
+:fullscreen .nav,
+:-webkit-full-screen .nav {
+  opacity:0;
+  transform:translateX(-50%) translateY(12px);
+  transition: opacity .25s ease, transform .25s ease;
+  pointer-events:none;
+}
+:fullscreen body.nav-visible .nav,
+:-webkit-full-screen body.nav-visible .nav {
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+  pointer-events:auto;
+}
 
 /* ── Responsivo ─────────────────────────────── */
 @media (max-width:640px) {
@@ -279,6 +309,21 @@ html, body {
   <button class="nav-btn" id="next" aria-label="Próximo slide" title="Próximo slide (→)">
     <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"></polyline></svg>
   </button>
+  <div class="nav-sep" aria-hidden="true"></div>
+  <button class="nav-btn" id="fs" aria-label="Tela cheia" title="Tela cheia (F)">
+    <svg viewBox="0 0 24 24" id="fs-icon-enter">
+      <polyline points="4 9 4 4 9 4"></polyline>
+      <polyline points="20 9 20 4 15 4"></polyline>
+      <polyline points="4 15 4 20 9 20"></polyline>
+      <polyline points="20 15 20 20 15 20"></polyline>
+    </svg>
+    <svg viewBox="0 0 24 24" id="fs-icon-exit" style="display:none;">
+      <polyline points="9 4 9 9 4 9"></polyline>
+      <polyline points="15 4 15 9 20 9"></polyline>
+      <polyline points="9 20 9 15 4 15"></polyline>
+      <polyline points="15 20 15 15 20 15"></polyline>
+    </svg>
+  </button>
 </nav>
 
 <script>
@@ -312,6 +357,49 @@ html, body {
   prevBtn.addEventListener('click', function () { go(-1); });
   nextBtn.addEventListener('click', function () { go(1); });
 
+  // Fullscreen
+  var fsBtn = document.getElementById('fs');
+  var fsEnter = document.getElementById('fs-icon-enter');
+  var fsExit = document.getElementById('fs-icon-exit');
+
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+  function toggleFullscreen() {
+    if (!isFullscreen()) {
+      var el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    } else {
+      if (document.exitFullscreen) document.exitFullscreen();
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    }
+  }
+  function syncFsIcon() {
+    var on = isFullscreen();
+    fsEnter.style.display = on ? 'none' : 'block';
+    fsExit.style.display = on ? 'block' : 'none';
+    fsBtn.setAttribute('aria-label', on ? 'Sair da tela cheia' : 'Tela cheia');
+    fsBtn.setAttribute('title', on ? 'Sair da tela cheia (F ou Esc)' : 'Tela cheia (F)');
+    if (!on) document.body.classList.remove('nav-visible');
+  }
+  fsBtn.addEventListener('click', toggleFullscreen);
+  document.addEventListener('fullscreenchange', syncFsIcon);
+  document.addEventListener('webkitfullscreenchange', syncFsIcon);
+
+  // Auto-hide da barra em fullscreen
+  var hideTimer = null;
+  function showNav() {
+    if (!isFullscreen()) return;
+    document.body.classList.add('nav-visible');
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(function () {
+      document.body.classList.remove('nav-visible');
+    }, 2000);
+  }
+  document.addEventListener('mousemove', showNav);
+  document.addEventListener('touchstart', showNav, { passive: true });
+
   document.addEventListener('keydown', function (e) {
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
     switch (e.key) {
@@ -326,6 +414,9 @@ html, body {
         e.preventDefault(); idx = 0; render(); break;
       case 'End':
         e.preventDefault(); idx = slides.length - 1; render(); break;
+      case 'f':
+      case 'F':
+        e.preventDefault(); toggleFullscreen(); break;
     }
   });
 
