@@ -202,6 +202,27 @@ html, body {
 .nav-btn.is-active { background:var(--citric); color:var(--carbon); }
 .nav-btn.is-active:hover { background:var(--citric); }
 
+/* ── Ponteiro laser ─────────────────────────── */
+.laser-dot {
+  position:fixed;
+  top:0; left:0;
+  width:16px; height:16px;
+  margin:-8px 0 0 -8px;
+  border-radius:50%;
+  background:radial-gradient(circle, #ff2b4a 0%, #ff2b4a 40%, rgba(255,43,74,0) 70%);
+  box-shadow:
+    0 0 8px 2px rgba(255,43,74,.85),
+    0 0 22px 6px rgba(255,43,74,.55),
+    0 0 44px 12px rgba(255,43,74,.25);
+  pointer-events:none;
+  z-index:20;
+  opacity:0;
+  transition: opacity .15s ease;
+  will-change: transform;
+}
+body.is-laser .laser-dot { opacity:1; }
+body.is-laser, body.is-laser * { cursor:none !important; }
+
 /* ── Lousa (canvas + barra de ferramentas) ─── */
 .draw-canvas {
   position:absolute;
@@ -402,7 +423,18 @@ body.is-drawing .draw-toolbar {
       <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
     </svg>
   </button>
+  <button class="nav-btn" id="laserToggle" aria-label="Ativar laser" title="Laser (L)">
+    <svg viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M12 3v3"></path>
+      <path d="M12 18v3"></path>
+      <path d="M3 12h3"></path>
+      <path d="M18 12h3"></path>
+    </svg>
+  </button>
 </nav>
+
+<div class="laser-dot" id="laserDot" aria-hidden="true"></div>
 
 <div class="draw-toolbar" id="drawToolbar" role="toolbar" aria-label="Ferramentas de desenho">
   <button class="tool-btn is-active" id="toolPen" data-tool="pen" aria-label="Pincel" title="Pincel (P)">
@@ -619,8 +651,38 @@ body.is-drawing .draw-toolbar {
     document.body.classList.toggle('is-drawing', on);
     drawToggle.classList.toggle('is-active', on);
     drawToggle.setAttribute('aria-label', on ? 'Fechar lousa' : 'Ativar lousa');
+    if (on) setLaserMode(false);
   }
   drawToggle.addEventListener('click', function () { setDrawMode(!drawMode); });
+
+  // ── Ponteiro laser ──────────────────────────
+  var laserToggle = document.getElementById('laserToggle');
+  var laserDot = document.getElementById('laserDot');
+  var laserMode = false;
+  var laserX = 0, laserY = 0, laserRaf = null;
+
+  function moveLaser() {
+    laserRaf = null;
+    laserDot.style.transform = 'translate3d(' + laserX + 'px,' + laserY + 'px,0)';
+  }
+  function onPointerMove(e) {
+    laserX = e.clientX;
+    laserY = e.clientY;
+    if (!laserRaf) laserRaf = requestAnimationFrame(moveLaser);
+  }
+  function setLaserMode(on) {
+    laserMode = on;
+    document.body.classList.toggle('is-laser', on);
+    laserToggle.classList.toggle('is-active', on);
+    laserToggle.setAttribute('aria-label', on ? 'Desativar laser' : 'Ativar laser');
+    if (on) {
+      setDrawMode(false);
+      window.addEventListener('pointermove', onPointerMove);
+    } else {
+      window.removeEventListener('pointermove', onPointerMove);
+    }
+  }
+  laserToggle.addEventListener('click', function () { setLaserMode(!laserMode); });
 
   function setTool(tool) {
     currentTool = tool;
@@ -685,6 +747,9 @@ body.is-drawing .draw-toolbar {
       case 'd':
       case 'D':
         e.preventDefault(); setDrawMode(!drawMode); break;
+      case 'l':
+      case 'L':
+        e.preventDefault(); setLaserMode(!laserMode); break;
       case 'p':
       case 'P':
         if (drawMode) { e.preventDefault(); setTool('pen'); }
