@@ -199,6 +199,71 @@ html, body {
 }
 .nav-count .current { color:var(--citric); }
 .nav-sep { width:1px; height:20px; background:rgba(255,255,255,.15); margin:0 2px; }
+.nav-btn.is-active { background:var(--citric); color:var(--carbon); }
+.nav-btn.is-active:hover { background:var(--citric); }
+
+/* ── Lousa (canvas + barra de ferramentas) ─── */
+.draw-canvas {
+  position:absolute;
+  inset:0;
+  border-radius:14px;
+  z-index:3;
+  pointer-events:none;
+  touch-action:none;
+}
+body.is-drawing .draw-canvas { pointer-events:auto; cursor:crosshair; }
+
+.draw-toolbar {
+  position:fixed;
+  left:50%;
+  bottom:80px;
+  transform:translateX(-50%) translateY(12px);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:8px;
+  background:var(--carbon);
+  color:var(--white);
+  border-radius:100px;
+  box-shadow:
+    0 8px 24px rgba(17,17,17,.18),
+    0 2px 6px rgba(17,17,17,.10);
+  z-index:11;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .2s ease, transform .2s ease;
+  user-select:none;
+}
+body.is-drawing .draw-toolbar {
+  opacity:1;
+  pointer-events:auto;
+  transform:translateX(-50%) translateY(0);
+}
+.tool-btn {
+  width:36px; height:36px;
+  border:none; background:transparent;
+  color:var(--white);
+  border-radius:100px;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition: background .15s, color .15s, transform .1s;
+}
+.tool-btn:hover { background:rgba(255,255,255,.10); }
+.tool-btn:active { transform:scale(.94); }
+.tool-btn.is-active { background:var(--citric); color:var(--carbon); }
+.tool-btn.is-active:hover { background:var(--citric); }
+.tool-btn svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+.color-btn {
+  width:22px; height:22px;
+  border:2px solid rgba(255,255,255,.25);
+  border-radius:100px;
+  cursor:pointer;
+  padding:0;
+  transition: transform .1s, border-color .15s;
+}
+.color-btn:hover { transform:scale(1.1); }
+.color-btn.is-active { border-color:var(--citric); transform:scale(1.1); }
+.tool-sep { width:1px; height:20px; background:rgba(255,255,255,.15); margin:0 2px; }
 
 /* ── Modo tela cheia ────────────────────────── */
 :fullscreen body,
@@ -213,6 +278,8 @@ html, body {
 }
 :fullscreen .slide,
 :-webkit-full-screen .slide { border-radius:0; box-shadow:none; }
+:fullscreen .draw-canvas,
+:-webkit-full-screen .draw-canvas { border-radius:0; }
 
 /* Auto-hide da barra de navegação em fullscreen */
 :fullscreen .nav,
@@ -233,9 +300,13 @@ html, body {
 @media (max-width:640px) {
   .deck { padding:16px 12px 100px; }
   .slide { border-radius:10px; }
+  .draw-canvas { border-radius:10px; }
   .nav { bottom:12px; }
   .nav-btn { width:34px; height:34px; }
   .nav-count { font-size:11px; min-width:60px; }
+  .draw-toolbar { bottom:70px; padding:6px; gap:4px; }
+  .tool-btn { width:32px; height:32px; }
+  .color-btn { width:20px; height:20px; }
 }
 </style>
 </head>
@@ -294,6 +365,7 @@ html, body {
       <div class="slide-num">05</div>
     </section>
 
+    <canvas class="draw-canvas" id="drawCanvas"></canvas>
   </div>
 </main>
 
@@ -324,7 +396,49 @@ html, body {
       <polyline points="15 20 15 15 20 15"></polyline>
     </svg>
   </button>
+  <button class="nav-btn" id="drawToggle" aria-label="Ativar lousa" title="Lousa (D)">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 20h9"></path>
+      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+    </svg>
+  </button>
 </nav>
+
+<div class="draw-toolbar" id="drawToolbar" role="toolbar" aria-label="Ferramentas de desenho">
+  <button class="tool-btn is-active" id="toolPen" data-tool="pen" aria-label="Pincel" title="Pincel (P)">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 20h9"></path>
+      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+    </svg>
+  </button>
+  <button class="tool-btn" id="toolHl" data-tool="hl" aria-label="Marca-texto" title="Marca-texto (M)">
+    <svg viewBox="0 0 24 24">
+      <path d="M9 11l-4 4v3h3l4-4"></path>
+      <path d="M14 6l4 4"></path>
+      <path d="M22 4l-2-2-10 10 2 2 10-10z"></path>
+    </svg>
+  </button>
+  <div class="tool-sep" aria-hidden="true"></div>
+  <button class="color-btn is-active" data-color="#111111" style="background:#111111" aria-label="Preto"></button>
+  <button class="color-btn" data-color="#E53935" style="background:#E53935" aria-label="Vermelho"></button>
+  <button class="color-btn" data-color="#1E88E5" style="background:#1E88E5" aria-label="Azul"></button>
+  <button class="color-btn" data-color="#FFEB3B" style="background:#FFEB3B" aria-label="Amarelo"></button>
+  <div class="tool-sep" aria-hidden="true"></div>
+  <button class="tool-btn" id="undoBtn" aria-label="Desfazer" title="Desfazer (Ctrl+Z)">
+    <svg viewBox="0 0 24 24">
+      <polyline points="9 14 4 9 9 4"></polyline>
+      <path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
+    </svg>
+  </button>
+  <button class="tool-btn" id="clearBtn" aria-label="Limpar slide" title="Limpar desenhos do slide">
+    <svg viewBox="0 0 24 24">
+      <polyline points="3 6 5 6 21 6"></polyline>
+      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+      <path d="M10 11v6"></path>
+      <path d="M14 11v6"></path>
+    </svg>
+  </button>
+</div>
 
 <script>
 (function () {
@@ -400,8 +514,159 @@ html, body {
   document.addEventListener('mousemove', showNav);
   document.addEventListener('touchstart', showNav, { passive: true });
 
+  // ── Lousa ─────────────────────────────────
+  var canvas = document.getElementById('drawCanvas');
+  var ctx = canvas.getContext('2d');
+  var drawToggle = document.getElementById('drawToggle');
+  var toolPen = document.getElementById('toolPen');
+  var toolHl = document.getElementById('toolHl');
+  var undoBtn = document.getElementById('undoBtn');
+  var clearBtn = document.getElementById('clearBtn');
+  var colorBtns = Array.prototype.slice.call(document.querySelectorAll('.color-btn'));
+
+  var strokesBySlide = {};
+  var drawMode = false;
+  var currentTool = 'pen';
+  var penColor = '#111111';
+  var hlColor = '#FFEB3B';
+  var drawing = false;
+  var currentStroke = null;
+
+  function activeColor() { return currentTool === 'pen' ? penColor : hlColor; }
+  function activeSize() { return currentTool === 'pen' ? 2.5 : 18; }
+  function activeAlpha() { return currentTool === 'pen' ? 1 : 0.35; }
+
+  function fitCanvas() {
+    var stage = document.getElementById('stage');
+    var rect = stage.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.max(1, Math.round(rect.width * dpr));
+    canvas.height = Math.max(1, Math.round(rect.height * dpr));
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    redraw();
+  }
+
+  function getStrokes(i) { return strokesBySlide[i] || (strokesBySlide[i] = []); }
+
+  function drawStroke(s, w, h) {
+    if (!s.points.length) return;
+    ctx.save();
+    ctx.strokeStyle = s.color;
+    ctx.fillStyle = s.color;
+    ctx.lineWidth = s.size;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.globalAlpha = s.alpha;
+    if (s.points.length === 1) {
+      var p = s.points[0];
+      ctx.beginPath();
+      ctx.arc(p.x * w, p.y * h, s.size / 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(s.points[0].x * w, s.points[0].y * h);
+      for (var i = 1; i < s.points.length; i++) {
+        ctx.lineTo(s.points[i].x * w, s.points[i].y * h);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function redraw() {
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    ctx.clearRect(0, 0, w, h);
+    getStrokes(idx).forEach(function (s) { drawStroke(s, w, h); });
+  }
+
+  function pos(e) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height
+    };
+  }
+
+  canvas.addEventListener('pointerdown', function (e) {
+    if (!drawMode) return;
+    e.preventDefault();
+    drawing = true;
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+    currentStroke = {
+      tool: currentTool,
+      color: activeColor(),
+      size: activeSize(),
+      alpha: activeAlpha(),
+      points: [pos(e)]
+    };
+    getStrokes(idx).push(currentStroke);
+    redraw();
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!drawing || !currentStroke) return;
+    currentStroke.points.push(pos(e));
+    redraw();
+  });
+  function endStroke() { drawing = false; currentStroke = null; }
+  canvas.addEventListener('pointerup', endStroke);
+  canvas.addEventListener('pointercancel', endStroke);
+  canvas.addEventListener('pointerleave', function () { if (drawing) endStroke(); });
+
+  function setDrawMode(on) {
+    drawMode = on;
+    document.body.classList.toggle('is-drawing', on);
+    drawToggle.classList.toggle('is-active', on);
+    drawToggle.setAttribute('aria-label', on ? 'Fechar lousa' : 'Ativar lousa');
+  }
+  drawToggle.addEventListener('click', function () { setDrawMode(!drawMode); });
+
+  function setTool(tool) {
+    currentTool = tool;
+    toolPen.classList.toggle('is-active', tool === 'pen');
+    toolHl.classList.toggle('is-active', tool === 'hl');
+    syncColorButtons();
+  }
+  toolPen.addEventListener('click', function () { setTool('pen'); });
+  toolHl.addEventListener('click', function () { setTool('hl'); });
+
+  function syncColorButtons() {
+    var active = activeColor().toLowerCase();
+    colorBtns.forEach(function (b) {
+      b.classList.toggle('is-active', b.getAttribute('data-color').toLowerCase() === active);
+    });
+  }
+  colorBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var c = b.getAttribute('data-color');
+      if (currentTool === 'pen') penColor = c; else hlColor = c;
+      syncColorButtons();
+    });
+  });
+
+  undoBtn.addEventListener('click', function () {
+    getStrokes(idx).pop();
+    redraw();
+  });
+  clearBtn.addEventListener('click', function () {
+    strokesBySlide[idx] = [];
+    redraw();
+  });
+
+  window.addEventListener('resize', fitCanvas);
+  document.addEventListener('fullscreenchange', function () { setTimeout(fitCanvas, 60); });
+  document.addEventListener('webkitfullscreenchange', function () { setTimeout(fitCanvas, 60); });
+
+  // Redraw when the active slide changes
+  var origRender = render;
+  render = function () { origRender(); redraw(); };
+
   document.addEventListener('keydown', function (e) {
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+      e.preventDefault(); getStrokes(idx).pop(); redraw(); return;
+    }
     switch (e.key) {
       case 'ArrowRight':
       case 'PageDown':
@@ -417,6 +682,17 @@ html, body {
       case 'f':
       case 'F':
         e.preventDefault(); toggleFullscreen(); break;
+      case 'd':
+      case 'D':
+        e.preventDefault(); setDrawMode(!drawMode); break;
+      case 'p':
+      case 'P':
+        if (drawMode) { e.preventDefault(); setTool('pen'); }
+        break;
+      case 'm':
+      case 'M':
+        if (drawMode) { e.preventDefault(); setTool('hl'); }
+        break;
     }
   });
 
@@ -425,6 +701,7 @@ html, body {
     var n = parseInt(m[1], 10) - 1;
     if (n >= 0 && n < slides.length) idx = n;
   }
+  fitCanvas();
   render();
 })();
 </script>
