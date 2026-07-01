@@ -141,6 +141,48 @@ html, body {
   color:var(--t2);
   max-width:80%;
 }
+.slide-list {
+  list-style:none;
+  padding:0;
+  margin:0;
+  width:100%;
+  max-width:92%;
+  font-family:"DM Sans",sans-serif;
+  font-size:clamp(13px, 1.5vw, 20px);
+  line-height:1.4;
+  color:var(--t1);
+}
+.slide-list li {
+  position:relative;
+  padding:.55em 0 .55em 1.5em;
+  border-top:1px solid var(--border);
+}
+.slide-list li:first-child { border-top:none; }
+.slide-list li::before {
+  content:"";
+  position:absolute;
+  left:0;
+  top:.95em;
+  width:.55em;
+  height:.55em;
+  background:var(--citric);
+  border-radius:2px;
+}
+.slide-list li .note {
+  display:block;
+  font-family:"DM Mono",monospace;
+  font-size:.68em;
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--t3);
+  margin-top:.2em;
+}
+.slide-list.two-col {
+  columns:2;
+  column-gap:48px;
+}
+.slide-list.two-col li { break-inside:avoid; }
 
 /* ── Numeração / marca do slide ─────────────── */
 .slide-num {
@@ -346,44 +388,114 @@ body.is-drawing .draw-toolbar {
       <div class="slide-num">01</div>
     </section>
 
-    <!-- Slide 2 -->
-    <section class="slide slide-light" aria-label="Slide 2">
+    <!-- Slide 2 — Pauta -->
+    <section class="slide slide-light" aria-label="Slide 2 · Pauta">
       <div class="slide-inner">
-        <p class="slide-eyebrow">Seção 01</p>
-        <h2 class="slide-heading">Título do <span class="accent">slide</span></h2>
-        <p class="slide-text">Slide modelo de conteúdo. Use este layout para introduzir uma seção, apresentar um tópico ou destacar uma ideia principal.</p>
+        <p class="slide-eyebrow">Reunião · Ouvidoria</p>
+        <h2 class="slide-heading">Pauta do <span class="accent">dia</span></h2>
+        <ul class="slide-list two-col">
+          <li>Atestado</li>
+          <li>Atestados não enviados no grupo</li>
+          <li>Mandar atestados e declarações no grupo</li>
+          <li>Faltas</li>
+          <li>Atrasos</li>
+          <li>Aplicação de advertências</li>
+          <li>Advertências: faltas e atrasos</li>
+          <li>Prêmios descontados e zerados</li>
+          <li>Banco de horas negativos</li>
+          <li>Devolutiva de testes domingo <span class="note">Extras Cinthia</span></li>
+          <li>Recebimento de testes por líderes</li>
+          <li>Binho padrão testes e entrevistas <span class="note">Problema Ireneu · não realizar entrevistas</span></li>
+          <li>Agenda de entrevistas Cinthia</li>
+          <li>Falta de devolutivas e não cumprir horários das entrevistas</li>
+          <li>Participação nos aniversariantes do mês</li>
+          <li>Excesso de oferta e pouca resiliência / vontade</li>
+        </ul>
       </div>
       <div class="slide-num">02</div>
     </section>
 
-    <!-- Slide 3 -->
-    <section class="slide slide-light" aria-label="Slide 3">
+    <!-- Slide 3 — Atestados e Declarações -->
+    <section class="slide slide-light" aria-label="Slide 3 · Atestados">
       <div class="slide-inner">
-        <p class="slide-eyebrow">Seção 02</p>
-        <h2 class="slide-heading">Sobre a <span class="accent">Ouvidoria</span></h2>
-        <p class="slide-text">Espaço reservado para descrever o propósito da ouvidoria: canal de escuta, sigilo garantido, tratamento de manifestações.</p>
+        <p class="slide-eyebrow">Tópico 01</p>
+        <h2 class="slide-heading">Atestados &amp; <span class="accent">declarações</span></h2>
+        <ul class="slide-list">
+          <li>Atestado</li>
+          <li>Atestados não enviados no grupo</li>
+          <li>Mandar atestados e declarações no grupo</li>
+        </ul>
       </div>
       <div class="slide-num">03</div>
     </section>
 
-    <!-- Slide 4 -->
-    <section class="slide slide-light" aria-label="Slide 4">
+    <!-- Slide 4 — Faltas, atrasos e advertências -->
+    <section class="slide slide-light" aria-label="Slide 4 · Faltas e advertências">
       <div class="slide-inner">
-        <p class="slide-eyebrow">Seção 03</p>
-        <h2 class="slide-heading">Como <span class="accent">funciona</span></h2>
-        <p class="slide-text">Explique aqui o fluxo: recebimento da manifestação, análise, retorno. Também dá para listar em bullets ou etapas.</p>
+        <p class="slide-eyebrow">Tópico 02</p>
+        <h2 class="slide-heading">Faltas, atrasos &amp; <span class="accent">advertências</span></h2>
+        <ul class="slide-list">
+          <li>Faltas</li>
+          <li>Atrasos</li>
+          <li>Aplicação de advertências</li>
+          <li>Advertências: faltas e atrasos</li>
+        </ul>
       </div>
       <div class="slide-num">04</div>
     </section>
 
-    <!-- Slide 5 -->
-    <section class="slide slide-light" aria-label="Slide 5">
+    <!-- Slide 5 — Prêmios e Banco de horas -->
+    <section class="slide slide-light" aria-label="Slide 5 · Prêmios e banco de horas">
       <div class="slide-inner">
-        <p class="slide-eyebrow">Seção 04</p>
-        <h2 class="slide-heading">Próximos <span class="accent">passos</span></h2>
-        <p class="slide-text">Slide reservado para encerramento, chamada para ação ou resumo dos próximos passos.</p>
+        <p class="slide-eyebrow">Tópico 03</p>
+        <h2 class="slide-heading">Prêmios &amp; <span class="accent">banco de horas</span></h2>
+        <ul class="slide-list">
+          <li>Prêmios descontados e zerados</li>
+          <li>Banco de horas negativos</li>
+        </ul>
       </div>
       <div class="slide-num">05</div>
+    </section>
+
+    <!-- Slide 6 — Testes -->
+    <section class="slide slide-light" aria-label="Slide 6 · Testes">
+      <div class="slide-inner">
+        <p class="slide-eyebrow">Tópico 04</p>
+        <h2 class="slide-heading">Testes &amp; <span class="accent">devolutivas</span></h2>
+        <ul class="slide-list">
+          <li>Devolutiva de testes domingo <span class="note">Extras Cinthia</span></li>
+          <li>Recebimento de testes por líderes</li>
+          <li>Binho padrão testes <span class="note">Problema Ireneu · não realizar testes</span></li>
+        </ul>
+      </div>
+      <div class="slide-num">06</div>
+    </section>
+
+    <!-- Slide 7 — Entrevistas -->
+    <section class="slide slide-light" aria-label="Slide 7 · Entrevistas">
+      <div class="slide-inner">
+        <p class="slide-eyebrow">Tópico 05</p>
+        <h2 class="slide-heading">Entrevistas &amp; <span class="accent">agenda</span></h2>
+        <ul class="slide-list">
+          <li>Agenda de entrevistas Cinthia</li>
+          <li>Falta de devolutivas e não cumprir horários das entrevistas</li>
+          <li>Binho padrão entrevistas <span class="note">Problema Ireneu · não realizar entrevistas</span></li>
+        </ul>
+      </div>
+      <div class="slide-num">07</div>
+    </section>
+
+    <!-- Slide 8 — Cultura e Engajamento -->
+    <section class="slide slide-light" aria-label="Slide 8 · Cultura e engajamento">
+      <div class="slide-inner">
+        <p class="slide-eyebrow">Tópico 06</p>
+        <h2 class="slide-heading">Cultura &amp; <span class="accent">engajamento</span></h2>
+        <ul class="slide-list">
+          <li>Participação nos aniversariantes do mês</li>
+          <li>Excesso de oferta e pouca resiliência / vontade</li>
+        </ul>
+      </div>
+      <div class="slide-num">08</div>
     </section>
 
     <canvas class="draw-canvas" id="drawCanvas"></canvas>
