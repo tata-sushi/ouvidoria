@@ -259,3 +259,70 @@ Troque `class="slide-list"` por `class="slide-list two-col"`.
 5. Não é preciso mexer em nenhum CSS — os estilos deste documento se
    aplicam automaticamente. O total de slides na navegação é detectado por
    JS.
+
+---
+
+## Ferramentas de animação (opcionais, opt-in por slide)
+
+### 1. Reveal — revelar itens progressivamente
+
+Use quando quiser controlar a exposição dos bullets ao vivo. Adicione a
+classe **`reveal-list`** ao `<ul>`. Os itens começam ocultos e cada
+`→` / `PgDn` / `Espaço` revela o próximo; `←` / `PgUp` esconde o último.
+Quando todos estão visíveis, o próximo `→` avança para o próximo slide
+(inclusive na barra inferior).
+
+```html
+<ul class="slide-list reveal-list">
+  <li>Item 1</li>
+  <li>Item 2</li>
+  <li>Item 3</li>
+</ul>
+```
+
+Combina com `two-col`:
+
+```html
+<ul class="slide-list two-col reveal-list">...</ul>
+```
+
+O estado de revelação é lembrado por slide: se sair e voltar, retoma de
+onde estava.
+
+### 2. Count-up — número animado do 0 até o alvo
+
+Use em números grandes/impactantes. Envolva o número em um `<span>` (ou
+qualquer inline) com a classe **`count-up`** e um `data-target`. Quando o
+slide fica ativo, o número anima de `0` até o alvo.
+
+```html
+<h2 class="slide-heading">
+  <span class="count-up" data-target="120" data-suffix="%">0</span> de eficiência
+</h2>
+```
+
+Atributos suportados:
+
+| Atributo | Padrão | Descrição |
+| --- | --- | --- |
+| `data-target` | `0` | Valor final. Aceita decimais. |
+| `data-duration` | `1200` | Duração da animação em ms. |
+| `data-decimals` | `0` | Casas decimais no resultado. |
+| `data-prefix` | `""` | Texto antes do número (ex.: `R$ `). |
+| `data-suffix` | `""` | Texto depois (ex.: `%`, `h`). |
+
+Formatação: sem decimais usa separador de milhar `pt-BR`
+(`1.250`); com decimais usa vírgula (`3,4`).
+
+Exemplos:
+
+```html
+<span class="count-up" data-target="1250">0</span>
+<!-- → 1.250 -->
+
+<span class="count-up" data-target="98.5" data-decimals="1" data-suffix="%">0</span>
+<!-- → 98,5% -->
+
+<span class="count-up" data-target="4200" data-prefix="R$ ">0</span>
+<!-- → R$ 4.200 -->
+```
