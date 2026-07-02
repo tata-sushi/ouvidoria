@@ -215,6 +215,23 @@ html, body {
 }
 .slide-list.two-col li { break-inside:avoid; }
 
+/* ── Reveal (revelar itens progressivamente) ─── */
+.reveal-list > li {
+  opacity:0;
+  transform:translateY(6px);
+  transition: opacity .35s ease, transform .35s ease;
+}
+.reveal-list > li.is-shown {
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* ── Count-up (número animado) ────────────────── */
+.count-up {
+  display:inline-block;
+  font-variant-numeric:tabular-nums;
+}
+
 /* ── Numeração / marca do slide ─────────────── */
 .slide-num {
   position:absolute;
@@ -752,10 +769,79 @@ body.is-drawing .draw-toolbar {
   }
 
   function go(delta) {
+    if (delta === 1) {
+      var itemsN = slideRevealables(idx);
+      var shownN = getRevealsShown(idx);
+      if (itemsN.length > 0 && shownN < itemsN.length) {
+        revealsBySlide[idx] = shownN + 1;
+        applyReveals(idx);
+        updateNavDisabled();
+        return;
+      }
+    } else if (delta === -1) {
+      var shownP = getRevealsShown(idx);
+      if (shownP > 0) {
+        revealsBySlide[idx] = shownP - 1;
+        applyReveals(idx);
+        updateNavDisabled();
+        return;
+      }
+    }
     var next = Math.max(0, Math.min(slides.length - 1, idx + delta));
     if (next === idx) return;
     idx = next;
     render();
+  }
+
+  // ── Reveal (revelar itens progressivamente) ──
+  var revealsBySlide = {};
+  function slideRevealables(i) {
+    var s = slides[i];
+    if (!s) return [];
+    return Array.prototype.slice.call(s.querySelectorAll('.reveal-list > li'));
+  }
+  function getRevealsShown(i) { return revealsBySlide[i] || 0; }
+  function applyReveals(i) {
+    var items = slideRevealables(i);
+    var shown = getRevealsShown(i);
+    items.forEach(function (item, k) {
+      item.classList.toggle('is-shown', k < shown);
+    });
+  }
+  function updateNavDisabled() {
+    var items = slideRevealables(idx);
+    var shown = getRevealsShown(idx);
+    var hasMoreReveals = items.length > 0 && shown < items.length;
+    prevBtn.disabled = idx === 0 && shown === 0;
+    nextBtn.disabled = idx === slides.length - 1 && !hasMoreReveals;
+  }
+
+  // ── Count-up (número animado) ────────────────
+  function runCountUps(i) {
+    var s = slides[i];
+    if (!s) return;
+    s.querySelectorAll('.count-up').forEach(function (el) {
+      var target = parseFloat(el.getAttribute('data-target') || '0');
+      var duration = parseInt(el.getAttribute('data-duration') || '1200', 10);
+      var decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
+      var prefix = el.getAttribute('data-prefix') || '';
+      var suffix = el.getAttribute('data-suffix') || '';
+      var start = performance.now();
+      function fmt(v) {
+        var text;
+        if (decimals === 0) text = Math.floor(v).toLocaleString('pt-BR');
+        else text = v.toFixed(decimals).replace('.', ',');
+        return prefix + text + suffix;
+      }
+      el.textContent = fmt(0);
+      function step(now) {
+        var t = Math.min(1, (now - start) / duration);
+        var eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = fmt(eased * target);
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
   }
 
   prevBtn.addEventListener('click', function () { go(-1); });
@@ -1006,7 +1092,13 @@ body.is-drawing .draw-toolbar {
 
   // Redraw when the active slide changes
   var origRender = render;
-  render = function () { origRender(); redraw(); };
+  render = function () {
+    origRender();
+    applyReveals(idx);
+    updateNavDisabled();
+    runCountUps(idx);
+    redraw();
+  };
 
   document.addEventListener('keydown', function (e) {
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
