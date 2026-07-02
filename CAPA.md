@@ -35,9 +35,16 @@ Ambas do Google Fonts, já pré-carregadas no `<head>`.
 - Tamanho: `clamp(24px, 4.54vw, 65px)`.
 - Line-height: `0.9`.
 - Letter-spacing: `0.03em`.
-- Alinhamento: horizontal e vertical central. O grupo (logo + título +
-  subtítulo) é elevado com `padding-bottom: 26%` no `.slide-inner` para o
-  **título** ficar no centro vertical do slide.
+
+## Alinhamento
+
+- **Logo + título formam um único grupo**, centralizado horizontal e
+  verticalmente no slide via `.slide-inner` (flex column com
+  `justify-content: center` e `align-items: center`).
+- O **subtítulo é posicionado absolutamente abaixo do título**
+  (`.cover-title-wrap` recebe `position: relative` e o subtítulo usa
+  `position: absolute; top: 100%`). Assim ele NÃO afeta o cálculo de
+  centro do grupo logo + título.
 
 ## Subtítulo
 
@@ -46,7 +53,9 @@ Ambas do Google Fonts, já pré-carregadas no `<head>`.
 - Tamanho: `clamp(9px, 1vw, 12px)`.
 - Letter-spacing: `0.32em`.
 - Transform: `uppercase`.
-- Margem acima (gap até o título): `margin-top: 2%`.
+- Gap até o título: `padding-top: 1.1em` (relativo ao próprio subtítulo).
+- Posição: absoluto, `top: 100%` do wrapper do título, centralizado com
+  `left: 50%; transform: translateX(-50%)`.
 
 ## Estrutura HTML
 
@@ -54,8 +63,10 @@ Ambas do Google Fonts, já pré-carregadas no `<head>`.
 <section class="slide slide-cover is-active" aria-label="Slide 1 · Capa">
   <div class="slide-inner">
     <img src="data:image/png;base64,..." alt="TATÁ SUSHI" class="cover-logo">
-    <h1 class="cover-title">Reunião de líderes</h1>
-    <p class="cover-subtitle">Um novo começo</p>
+    <div class="cover-title-wrap">
+      <h1 class="cover-title">Reunião de líderes</h1>
+      <p class="cover-subtitle">Um novo começo</p>
+    </div>
   </div>
 </section>
 ```
