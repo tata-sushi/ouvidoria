@@ -80,3 +80,63 @@ Ambas do Google Fonts, já pré-carregadas no `<head>`.
 4. **Cor do título** — mantenha `--citric` para permanecer no sistema, ou crie
    uma variante temática.
 5. **Tudo o mais permanece igual** (logo, fontes, tamanhos, alinhamento).
+
+## CSS consolidado (referência)
+
+```css
+/* Fundo */
+.slide-cover           { background: #35383F; color: #FFFFFF; }
+.slide-cover.is-dark   { background: #000000; }
+
+/* Container centralizando o grupo logo + título */
+.slide-inner {
+  position: absolute; inset: 0;
+  padding: 6% 8%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Logo — só o ícone */
+.cover-logo {
+  width: 12.67%;
+  max-width: 104px;
+  aspect-ratio: 1414 / 1250;
+  height: auto;
+  object-fit: cover;
+  object-position: top center;
+  margin-bottom: 4%;
+}
+
+/* Título */
+.cover-title-wrap { position: relative; text-align: center; }
+.cover-title {
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(24px, 4.54vw, 65px);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: 0.03em;
+  color: #CFFF00;
+  margin: 0;
+}
+
+/* Subtítulo — absoluto abaixo do título (não afeta o centro do grupo) */
+.cover-subtitle {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding-top: 1.1em;
+  font-family: "DM Mono", monospace;
+  font-size: clamp(9px, 1vw, 12px);
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  white-space: nowrap;
+  line-height: 1;
+}
+```
