@@ -137,7 +137,11 @@ html, body {
 }
 
 /* ── Slides claros (conteúdo padrão) ───────── */
-.slide-light { background:var(--white); color:var(--t1); }
+.slide-light {
+  background:var(--white);
+  color:var(--t1);
+  border-left:10px solid var(--carbon);
+}
 .slide-light .slide-inner {
   align-items:flex-start;
   justify-content:flex-start;
@@ -189,11 +193,11 @@ html, body {
   content:"";
   position:absolute;
   left:0;
-  top:.95em;
-  width:.55em;
-  height:.55em;
-  background:var(--citric);
-  border-radius:2px;
+  top:1em;
+  width:.44em;
+  height:.44em;
+  background:var(--carbon);
+  border-radius:50%;
 }
 .slide-list li .note {
   display:block;
