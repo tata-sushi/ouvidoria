@@ -275,6 +275,43 @@ html, body {
 .nav-btn.is-active { background:var(--citric); color:var(--carbon); }
 .nav-btn.is-active:hover { background:var(--citric); }
 
+/* ── Menu "mais" ─────────────────────────────── */
+.more-wrap { position:relative; display:flex; align-items:center; }
+.more-menu {
+  position:absolute;
+  bottom:calc(100% + 10px);
+  right:0;
+  min-width:200px;
+  background:var(--carbon);
+  color:var(--white);
+  border-radius:12px;
+  padding:6px;
+  box-shadow:
+    0 12px 32px rgba(17,17,17,.28),
+    0 2px 8px rgba(17,17,17,.15);
+  z-index:12;
+}
+.more-menu[hidden] { display:none; }
+.more-item {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  padding:10px 12px;
+  background:transparent;
+  border:none;
+  color:var(--white);
+  font-family:"DM Sans",sans-serif;
+  font-size:13px;
+  font-weight:500;
+  text-align:left;
+  cursor:pointer;
+  border-radius:8px;
+  transition: background .15s;
+}
+.more-item:hover { background:rgba(255,255,255,.10); }
+.more-item svg { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+
 /* ── Ponteiro laser ─────────────────────────── */
 .laser-dot {
   position:fixed;
@@ -401,6 +438,53 @@ body.is-drawing .draw-toolbar {
   .draw-toolbar { bottom:70px; padding:6px; gap:4px; }
   .tool-btn { width:32px; height:32px; }
   .color-btn { width:20px; height:20px; }
+}
+
+/* ── Impressão / exportar PDF ────────────────── */
+@media print {
+  @page { size: 297mm 167mm; margin: 0; }
+  html, body {
+    background: #FFFFFF !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+  .nav, .draw-toolbar, .more-menu, .laser-dot, .draw-canvas, .deck-foot {
+    display: none !important;
+  }
+  .deck {
+    padding: 0 !important;
+    min-height: 0 !important;
+    display: block !important;
+  }
+  .stage {
+    position: static !important;
+    max-width: none !important;
+    width: auto !important;
+    height: auto !important;
+    aspect-ratio: auto !important;
+    display: block !important;
+  }
+  .slide {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important; left: auto !important; right: auto !important; bottom: auto !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    aspect-ratio: auto !important;
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  .slide-light { border-left-width: 10px !important; }
 }
 </style>
 </head>
@@ -583,6 +667,25 @@ body.is-drawing .draw-toolbar {
       <path d="M18 12h3"></path>
     </svg>
   </button>
+  <div class="more-wrap">
+    <button class="nav-btn" id="moreToggle" aria-label="Mais opções" aria-haspopup="menu" aria-expanded="false" title="Mais">
+      <svg viewBox="0 0 24 24">
+        <circle cx="6" cy="12" r="1.4" fill="currentColor" stroke="none"></circle>
+        <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"></circle>
+        <circle cx="18" cy="12" r="1.4" fill="currentColor" stroke="none"></circle>
+      </svg>
+    </button>
+    <div class="more-menu" id="moreMenu" role="menu" hidden>
+      <button class="more-item" id="downloadPdf" role="menuitem">
+        <svg viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Baixar PDF</span>
+      </button>
+    </div>
+  </div>
 </nav>
 
 <div class="laser-dot" id="laserDot" aria-hidden="true"></div>
@@ -838,6 +941,32 @@ body.is-drawing .draw-toolbar {
     }
   }
   laserToggle.addEventListener('click', function () { setLaserMode(!laserMode); });
+
+  // ── Menu "mais" + baixar PDF ────────────────
+  var moreToggle = document.getElementById('moreToggle');
+  var moreMenu = document.getElementById('moreMenu');
+  var downloadPdf = document.getElementById('downloadPdf');
+
+  function setMoreOpen(open) {
+    moreMenu.hidden = !open;
+    moreToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    moreToggle.classList.toggle('is-active', open);
+  }
+  moreToggle.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setMoreOpen(moreMenu.hidden);
+  });
+  document.addEventListener('click', function (e) {
+    if (!moreMenu.hidden && !moreMenu.contains(e.target) && e.target !== moreToggle) {
+      setMoreOpen(false);
+    }
+  });
+  downloadPdf.addEventListener('click', function () {
+    setMoreOpen(false);
+    setDrawMode(false);
+    setLaserMode(false);
+    window.print();
+  });
 
   function setTool(tool) {
     currentTool = tool;
