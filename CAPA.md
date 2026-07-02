@@ -8,8 +8,8 @@ podem variar; o resto se mantém).
 
 ## Fundo
 
-- Cor: `#35383F` (variável `--carbon`).
-- Variante escura (slide 9 · encerramento): `#000000`.
+- Cor da capa inicial: `#35383F` (variável `--carbon`).
+- Cor da capa final (slide 9 · encerramento): `#000000` (variante `.is-dark`).
 
 ## Fontes
 
@@ -71,6 +71,31 @@ Ambas do Google Fonts, já pré-carregadas no `<head>`.
 </section>
 ```
 
+## Capa final (slide 9)
+
+Padrão mais enxuto que a capa inicial:
+
+- **Fundo:** preto sólido `#000000` (`.slide-cover.is-dark`).
+- **Único elemento:** logo **inteiro** (ícone + wordmark "TATÁ SUSHI"),
+  centralizado horizontal e verticalmente.
+- **Sem título, subtítulo, rodapé ou numeração.**
+- Classe do logo: `.cover-logo-full` — não usa recorte por `aspect-ratio`
+  (usa a proporção natural 1414 × 2000 do PNG), com `object-fit: contain`.
+- **Tamanho:** `width: 22%` do slide, `max-width: 220px`.
+- O `src` é copiado em runtime do logo da capa inicial (via JS), então há
+  apenas uma cópia do base64 no HTML — mas as duas imagens são independentes
+  em CSS (`.cover-logo` × `.cover-logo-full`).
+
+Estrutura HTML da capa final:
+
+```html
+<section class="slide slide-cover is-dark" aria-label="Slide 9 · Encerramento">
+  <div class="slide-inner">
+    <img alt="TATÁ SUSHI" class="cover-logo-full" id="closingLogo">
+  </div>
+</section>
+```
+
 ## Como trocar o tema
 
 1. **Título** — edite o texto do `<h1 class="cover-title">`.
@@ -99,7 +124,7 @@ Ambas do Google Fonts, já pré-carregadas no `<head>`.
   text-align: center;
 }
 
-/* Logo — só o ícone */
+/* Logo — só o ícone (capa inicial) */
 .cover-logo {
   width: 12.67%;
   max-width: 104px;
@@ -108,6 +133,14 @@ Ambas do Google Fonts, já pré-carregadas no `<head>`.
   object-fit: cover;
   object-position: top center;
   margin-bottom: 4%;
+}
+
+/* Logo — inteiro (capa final, slide 9) */
+.cover-logo-full {
+  width: 22%;
+  max-width: 220px;
+  height: auto;
+  object-fit: contain;
 }
 
 /* Título */

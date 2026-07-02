@@ -88,6 +88,13 @@ html, body {
   object-position:top center;
   margin-bottom:4%;
 }
+/* Capa final (slide 9) — logo inteiro, sem recorte */
+.cover-logo-full {
+  width:22%;
+  max-width:220px;
+  height:auto;
+  object-fit:contain;
+}
 .cover-title-wrap {
   position:relative;
   text-align:center;
@@ -526,11 +533,8 @@ body.is-drawing .draw-toolbar {
     <!-- Slide 9 — Encerramento -->
     <section class="slide slide-cover is-dark" aria-label="Slide 9 · Encerramento">
       <div class="slide-inner">
-        <img alt="TATÁ SUSHI" class="cover-logo" id="closingLogo">
-        <h1 class="cover-title">Obrigado</h1>
+        <img alt="TATÁ SUSHI" class="cover-logo-full" id="closingLogo">
       </div>
-      <div class="cover-foot">TATÁ SUSHI · Ouvidoria</div>
-      <div class="slide-num">09</div>
     </section>
 
     <canvas class="draw-canvas" id="drawCanvas"></canvas>
