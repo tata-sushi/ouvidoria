@@ -250,6 +250,49 @@ Troque `class="slide-list"` por `class="slide-list two-col"`.
 
 ---
 
+## Slide de introdução (limpo, sem barra)
+
+Variação usada, por exemplo, no slide 2 — entre a capa e a pauta. Serve
+para uma abertura curta com texto centralizado e/ou uma imagem de
+referência.
+
+- Classe da `<section>`: `.slide-intro` (em vez de `.slide-light`).
+- **Sem** barra carbon à esquerda.
+- **Sem** eyebrow, heading, lista ou numeração.
+- Conteúdo centralizado horizontal e verticalmente.
+- Imagem opcional (`.intro-image`) e texto (`.intro-text`) empilhados
+  no centro.
+
+```html
+<section class="slide slide-intro" aria-label="Slide 2 · Introdução">
+  <div class="slide-inner">
+    <img class="intro-image" alt="…" src="…">
+    <p class="intro-text">Texto introdutório aqui.</p>
+  </div>
+</section>
+```
+
+CSS envolvido:
+
+```css
+.slide-intro { background: #FFFFFF; color: #111111; }
+.slide-intro .slide-inner {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 4%;
+}
+.intro-image { max-width: 38%; max-height: 44%; object-fit: contain; }
+.intro-text {
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(16px, 2vw, 28px);
+  font-weight: 500;
+  line-height: 1.5;
+  color: #111111;
+  max-width: 70%;
+}
+```
+
 ## Como adicionar um novo slide de conteúdo
 
 1. Duplicar um `<section class="slide slide-light">` existente.
